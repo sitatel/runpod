@@ -1,28 +1,32 @@
-FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
+# Dockerfile Ultra-Slim para FishSpeech
+FROM python:3.10-slim
 
-# Establecer directorio de trabajo
-WORKDIR /app
+# Establecer variables de entorno
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
 
-# Instalar dependencias básicas
+# Instalar dependencias básicas del sistema
 RUN apt-get update && apt-get install -y \
-    wget \
     git \
-    python3 \
-    python3-pip \
+    wget \
     curl \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Copiar todos los archivos del proyecto al contenedor
-COPY . /app/
+# Crear directorios de trabajo
+RUN mkdir -p /workspace/checkpoints/s2-pro
+RUN mkdir -p /workspace/checkpoints/llama-3-awq
 
-# Dar permisos de ejecución al script
-RUN chmod +x /app/start_services.sh
-
-# Crear enlace simbólico para mantener compatibilidad con /workspace
-RUN ln -sf /app /workspace
+# Copiar scripts y parches
+COPY patches/inference.py /tmp/inference.py
+COPY start_services.sh /workspace/start_services.sh
+RUN chmod +x /workspace/start_services.sh
 
 # Exponer puertos
 EXPOSE 7860 8001
 
-# Comando de inicio
-CMD ["/app/start_services.sh"]
+# Comando de inicio por defecto
+CMD ["/workspace/start_services.sh"]
+
+# Directorio de trabajo
+WORKDIR /workspace
