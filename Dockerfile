@@ -1,11 +1,11 @@
-# Dockerfile Ultra-Slim para FishSpeech
+# Dockerfile Natural para SAE Voice Engine
 FROM python:3.10-slim
 
-# Establecer variables de entorno
+# Entorno
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 
-# Instalar dependencias básicas del sistema
+# Dependencias
 RUN apt-get update && apt-get install -y \
     git \
     wget \
@@ -13,20 +13,15 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-# Crear directorios de trabajo
+# CREACIÓN DE DIRECTORIOS (El esqueleto que mencionas)
 RUN mkdir -p /workspace/checkpoints/s2-pro
 RUN mkdir -p /workspace/checkpoints/llama-3-awq
 
-# Copiar scripts y parches
-COPY patches/inference.py /tmp/inference.py
+# Copiar el script de inicio (SIN PARCHES)
 COPY start_services.sh /workspace/start_services.sh
 RUN chmod +x /workspace/start_services.sh
 
-# Exponer puertos
+# Configuración final
 EXPOSE 7860 8001
-
-# Comando de inicio por defecto
-CMD ["/workspace/start_services.sh"]
-
-# Directorio de trabajo
 WORKDIR /workspace
+CMD ["/workspace/start_services.sh"]
